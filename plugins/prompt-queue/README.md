@@ -68,7 +68,7 @@ Without this plugin loaded, a Tab bound to `chat:queueSubmit` behaves like Enter
 - A prompt with pasted images or files can't be queued; it is sent right away, with a notice.
 - `@file` mentions in a queued prompt aren't expanded. Claude sees the path as text.
 - Each queued prompt leaves a dim `Queued follow-up input` line in the transcript. Claude Code requires a reason when a mod holds back a prompt.
-- The edit key is `alt+↑`, not Codex's `shift+←`: Claude Code doesn't hand a mod the input box's cursor keys. Some macOS terminals deliver Cmd+↑ as this key too.
+- The edit key is `alt+↑`, not Codex's `shift+←`: Claude Code doesn't hand a mod the input box's cursor keys.
 - The edit key works through the engine action `app:diffFileListUp`, the one that scrolls the `/diff` panel's file list. While that panel is open, the key scrolls the panel instead.
 
 ## Develop
