@@ -4,7 +4,8 @@ A plugin marketplace (`demo-0416-mods`) of Claude Code mods. Each mod lives in `
 
 ## Working on a mod
 
-- This clone is registered as the local marketplace and its mods are installed from it. Claude Code reads them straight from `plugins/`, so after an edit, ask the user to run `/reload-plugins`. Don't copy a mod into `~/.claude/dev-mods/`; that would load it twice.
+- The user installs these mods from GitHub (`<mod>@demo-0416-mods`, a cached copy), so local edits don't reach their sessions on their own. To try an edit, they start `claude --plugin-dir plugins/<mod>`, which replaces the installed copy for that session and reloads on save. Don't copy a mod into `~/.claude/dev-mods/`.
+- To ship a change: bump `version` in the mod's `plugin.json`, then commit and push (only when the user asks). After that, run `claude plugin marketplace update demo-0416-mods` and `claude plugin update <mod>@demo-0416-mods`, and ask the user to run `/reload-plugins`.
 - Load the `plugin-authoring` skill before writing or debugging a hooks module. The engine's type declarations are the API reference.
 - Before calling a change done, run all of these and report the results:
   - `claude plugin validate .`
@@ -13,7 +14,6 @@ A plugin marketplace (`demo-0416-mods`) of Claude Code mods. Each mod lives in `
   - `tsc -p plugins/<mod>`
 - Behaviour a test can't reach, such as real key presses or terminal rendering, needs the user to try it in a session. Say what to try.
 - When behaviour or keybindings change, update the mod's README.
-- Bump `version` in the mod's `plugin.json` when releasing a change. Users who installed from GitHub get updates by version.
 
 ## Adding a mod
 

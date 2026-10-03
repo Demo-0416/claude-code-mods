@@ -184,7 +184,8 @@ test('the hint under the prompt names the queue key while a turn runs', async ($
     return {
       value: JSON.stringify({
         bindings: [
-          { context: 'Chat', bindings: { tab: 'chat:queueSubmit', 'shift+left': 'app:diffFileListUp' } },
+          { context: 'Global', bindings: { 'shift+left': 'app:diffFileListUp' } },
+          { context: 'Chat', bindings: { tab: 'chat:queueSubmit' } },
         ],
       }),
     }
@@ -213,10 +214,10 @@ test('the hint under the prompt names the queue key while a turn runs', async ($
   expect(await ui.find({ type: 'Text', text: /queue/ })).toBeUndefined()
   await ui.unmount()
 
-  // The edit hint names the person's own binding of the edit action.
+  // The edit key stays the built-in alt+↑, whatever else the person binds.
   await $.prompt.submit(typed('later', 't1', true))
   const band = await $.ui.mount({ ...BAND, surface: 'terminal' })
-  expect((await band.find({ type: 'Button', key: 'edit' }))?.props).toMatchObject({ label: 'shift+←' })
+  expect((await band.find({ type: 'Button', key: 'edit' }))?.props).toMatchObject({ label: 'alt+↑' })
   await band.unmount()
 })
 

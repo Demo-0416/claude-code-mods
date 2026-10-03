@@ -24,9 +24,9 @@ const DEFAULT_QUEUE_KEY = 'ctrl+x enter'
 // The prompt box hands a mod no cursor keys, so the edit key is an engine
 // action the band's Button names: its chord presses the Button while the queue
 // shows. This one scrolls /diff's file list and is bound to alt+↑ (Codex's
-// second edit key) by default; shift+← is the person's own binding of it.
+// second edit key) by default, so it needs no keybinding of the person's.
 const EDIT_ACTION = 'app:diffFileListUp'
-const DEFAULT_EDIT_KEY = 'meta+up'
+const EDIT_KEY_LABEL = 'alt+↑'
 
 const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
 
@@ -92,40 +92,35 @@ function wrapRows(text: string, width: number): string[] {
   return rows
 }
 
-type Keys = { queue: string | undefined; edit: string }
+// The key bound to chat:queueSubmit in the Chat context: the person's last
+// binding of it in keybindings.json, else the default unless they unbound it.
+let queueKey: string | undefined = DEFAULT_QUEUE_KEY
 
-// The keys the hints name, from keybindings.json: the person's last binding of
-// chat:queueSubmit in Chat (the default unless they unbound it), and of the
-// edit action in Chat or Global.
-let keys: Keys = { queue: DEFAULT_QUEUE_KEY, edit: DEFAULT_EDIT_KEY }
-
-async function readKeys($: EngineInterface): Promise<Keys> {
-  const found: Keys = { queue: DEFAULT_QUEUE_KEY, edit: DEFAULT_EDIT_KEY }
+async function readQueueKey($: EngineInterface) {
   const dir = (await $.env.get('CLAUDE_CONFIG_DIR')) ?? `${await $.env.get('HOME')}/.claude`
   let file: unknown
   try {
     file = JSON.parse(await $.fs.read(`${dir}/keybindings.json`))
   } catch {
-    return found
+    return DEFAULT_QUEUE_KEY
   }
+  let key: string | undefined = DEFAULT_QUEUE_KEY
   const blocks = (file as { bindings?: unknown }).bindings
   for (const block of Array.isArray(blocks) ? blocks : []) {
     const { context, bindings } = block as { context?: unknown; bindings?: unknown }
-    if (typeof bindings !== 'object' || bindings === null) {
+    if (context !== 'Chat' || typeof bindings !== 'object' || bindings === null) {
       continue
     }
     for (const [chord, action] of Object.entries(bindings)) {
-      if (context === 'Chat' && action === 'chat:queueSubmit') {
-        found.queue = chord
-      } else if (context === 'Chat' && chord === found.queue && action === null) {
-        found.queue = undefined
-      } else if ((context === 'Chat' || context === 'Global') && action === EDIT_ACTION) {
-        found.edit = chord
+      if (action === 'chat:queueSubmit') {
+        key = chord
+      } else if (chord === key && action === null) {
+        key = undefined
       }
     }
   }
 
-  return found
+  return key
 }
 
 // Sends the oldest queued prompt as a turn of its own once the session is idle.
@@ -193,7 +188,7 @@ async function restore($: EngineInterface) {
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
-    keys = await readKeys($)
+    queueKey = await readQueueKey($)
     // A reload: a release in flight may have entered unseen.
     await update($, releasing, () => null)
     kick($)
@@ -301,7 +296,7 @@ export const register: Register = on => {
           <Button
             key="edit"
             plain
-            label={keyLabel(keys.edit)}
+            label={EDIT_KEY_LABEL}
             action={EDIT_ACTION}
             onPress={() => takeLast($)}
           />
@@ -312,10 +307,10 @@ export const register: Register = on => {
   })
 
   on('ui.render', { component: 'PromptHint' }, ($, e, next) => {
-    if (!e.props.isWorking || !e.props.isDraft || keys.queue === undefined) {
+    if (!e.props.isWorking || !e.props.isDraft || queueKey === undefined) {
       return next(e)
     }
-    const key = keyLabel(keys.queue)
+    const key = keyLabel(queueKey)
     const full = ` · ${key} to queue message`
     const columns = e.viewport?.columns ?? 80
     const tail = e.props.hint.length + full.length <= columns ? full : ` · ${key} to queue`

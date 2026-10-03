@@ -36,14 +36,13 @@ plugins/<mod>/
 
 ## Develop
 
-Register your clone as the marketplace, so Claude Code reads the mods straight from it:
+Start Claude Code with the mod's folder:
 
 ```bash
-claude plugin marketplace add /path/to/claude-code-mods
-claude plugin install <mod>@demo-0416-mods
+claude --plugin-dir plugins/<mod>
 ```
 
-After an edit, run `/reload-plugins` in a session. No version bump or copying is needed. To try a mod without installing it, run `claude --plugin-dir plugins/<mod>`.
+The folder loads in place and replaces an installed copy of the same mod for that session. Saving a file reloads the mod.
 
 Before you commit, check the mod:
 
@@ -61,7 +60,18 @@ tsc -p plugins/<mod>                     # once Claude Code has loaded the mod o
 1. Create `plugins/<mod>/` with the files listed under [Layout](#layout). The `name` in `plugin.json` must match the folder name and the marketplace entry.
 2. Add an entry to `.claude-plugin/marketplace.json` with `name`, `source` (`./plugins/<mod>`) and `description`.
 3. Add a row to the [Mods](#mods) table.
-4. Run the checks above, then install it with `claude plugin install <mod>@demo-0416-mods`.
+4. Run the checks above, try it with `claude --plugin-dir plugins/<mod>`, then push.
+
+### Release a change
+
+Users get an update only when the `version` in the mod's `plugin.json` changes. Bump it, push, then update your own install:
+
+```bash
+claude plugin marketplace update demo-0416-mods
+claude plugin update <mod>@demo-0416-mods
+```
+
+Run `/reload-plugins` in open sessions to load the new version.
 
 ## License
 
