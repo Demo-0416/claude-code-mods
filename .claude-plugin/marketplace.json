@@ -1,0 +1,14 @@
+{
+  "name": "demo-0416-mods",
+  "description": "Mods for Claude Code by Demo-0416",
+  "owner": {
+    "name": "Demo-0416"
+  },
+  "plugins": [
+    {
+      "name": "prompt-queue",
+      "source": "./plugins/prompt-queue",
+      "description": "Codex-style queued follow-up inputs: queue a prompt while Claude works and send it after the turn ends"
+    }
+  ]
+}

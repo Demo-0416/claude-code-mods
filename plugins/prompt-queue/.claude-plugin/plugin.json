@@ -1,0 +1,18 @@
+{
+  "name": "prompt-queue",
+  "version": "0.3.0",
+  "description": "Codex-style queued follow-up inputs: the queue key while a turn runs holds the prompt until the turn ends, one per turn; alt+↑ (or your binding) edits the last one; an interrupt puts them back in the composer",
+  "author": {
+    "name": "Demo-0416",
+    "url": "https://github.com/Demo-0416"
+  },
+  "repository": "https://github.com/Demo-0416/claude-code-mods",
+  "license": "MIT",
+  "keywords": [
+    "queue",
+    "prompt",
+    "codex",
+    "mod"
+  ],
+  "types": "./types/index.d.ts"
+}
